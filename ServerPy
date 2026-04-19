@@ -1,0 +1,25 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+valor_pot = 0
+
+@app.route('/pot', methods=['POST'])
+def receber_pot():
+    global valor_pot
+
+    dados = request.get_json()
+    valor_pot = dados['valor']
+
+    print(f"Valor recebido: {valor_pot}")
+
+    return jsonify({"status": "ok"})
+
+
+@app.route('/pot', methods=['GET'])
+def enviar_pot():
+    return jsonify({"valor": valor_pot})
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
