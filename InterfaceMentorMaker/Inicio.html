@@ -155,6 +155,38 @@
         ouvindo = false;
       }
     }
+
+
+    function ativarEscuta() {
+  const body = document.body;
+  const status = document.getElementById("status");
+  const mensagem = document.getElementById("mensagem");
+
+  if (!ouvindo) {
+    body.classList.add("ouvindo");
+    status.innerText = "Estou ouvindo... pode falar";
+    mensagem.innerText = "Pode falar comigo!";
+    ouvindo = true;
+
+    enviarEstado(1); // <- ENVIA PRO SERVIDOR
+
+  } else {
+    body.classList.remove("ouvindo");
+    status.innerText = "Estou esperando vocês";
+    mensagem.innerText = "Oi pessoal 👋 quando quiserem, podem me chamar!";
+    ouvindo = false;
+
+    enviarEstado(0); // <- ENVIA PRO SERVIDOR
+  }
+}
+
+function enviarEstado(valor) {
+  fetch(`http://192.168.0.100:5000/estado?ouvindo=${valor}`)
+    .then(res => res.json())
+    .then(data => console.log("Estado enviado:", data))
+    .catch(err => console.error(err));
+}
+
   </script>
 
 </body>
