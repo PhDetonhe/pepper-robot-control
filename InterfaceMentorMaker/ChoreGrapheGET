@@ -1,0 +1,48 @@
+import urllib2
+import json
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.url_estado = "http://192.168.0.100:5000/estado"
+        self.url_next = "http://192.168.0.100:5000/next"
+
+    def onInput_onStart(self):
+        self.monitorar()
+
+    def monitorar(self):
+        try:
+            # pega estado do botão
+            response = urllib2.urlopen(self.url_estado)
+            data = json.loads(response.read())
+
+            ouvindo = data["ouvindo"]
+
+            if ouvindo:
+                self.falar("Estou ouvindo vocês.")
+            else:
+                self.falar("Estou aguardando.")
+
+            # pega próximo grupo
+            response2 = urllib2.urlopen(self.url_next)
+            data2 = json.loads(response2.read())
+
+            grupo = data2["grupo"]
+
+            if grupo is not None:
+                self.falar("Vou ajudar o grupo " + str(grupo))
+
+        except Exception as e:
+            print(e)
+
+        # repete a cada 5 segundos
+        self.timer = self.qi.async(self.esperar)
+
+    def esperar(self):
+        import time
+        time.sleep(5)
+        self.monitorar()
+
+    def falar(self, texto):
+        tts = self.session.service("ALTextToSpeech")
+        tts.say(texto)
