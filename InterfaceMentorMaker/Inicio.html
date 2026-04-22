@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mentor Maker</title>
+
+  <!-- trava zoom -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+
+      /* bloqueia seleção */
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f6f8;
+      transition: background 0.4s ease;
+
+      /* bloqueia scroll */
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    body.ouvindo {
+      background: #e8f7ff;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      padding: 50px 30px;
+
+      /* bloqueia interação */
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #222;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.4rem;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      padding: 20px 30px;
+      font-size: 1.6rem;
+      border-radius: 50px;
+      border: none;
+      background: #007aff;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+
+      /* libera só o botão */
+      pointer-events: auto;
+    }
+
+    .btn:hover {
+      background: #0062cc;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .mic {
+      margin-top: 50px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #007aff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      color: white;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      transition: 0.3s;
+    }
+
+    .ouvindo .mic {
+      opacity: 1;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .status {
+      margin-top: 25px;
+      font-size: 1.2rem;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Mentor Maker</h1>
+    <p id="mensagem">Oi pessoal 👋 quando quiserem, podem me chamar!</p>
+
+    <button class="btn" onclick="ativarEscuta()">
+      Posso falar agora?
+    </button>
+
+    <div class="mic">🎤</div>
+
+    <div class="status" id="status">
+      Estou esperando vocês
+    </div>
+  </div>
+
+  <script>
+    let ouvindo = false;
+
+    function ativarEscuta() {
+      const body = document.body;
+      const status = document.getElementById("status");
+      const mensagem = document.getElementById("mensagem");
+
+      if (!ouvindo) {
+        body.classList.add("ouvindo");
+        status.innerText = "Estou ouvindo... pode falar";
+        mensagem.innerText = "Pode falar comigo!";
+        ouvindo = true;
+      } else {
+        body.classList.remove("ouvindo");
+        status.innerText = "Estou esperando vocês";
+        mensagem.innerText = "Oi pessoal 👋 quando quiserem, podem me chamar!";
+        ouvindo = false;
+      }
+    }
+  </script>
+
+</body>
+</html>
