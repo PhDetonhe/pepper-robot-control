@@ -1,0 +1,70 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+//mudar pra rede que estivermos utilizando, o codigo trava completamente se não for conectado de forma certa.
+const char* ssid = "Desktop_F8A94029";
+const char* password = "9895004130331967";
+
+const char* serverUrl = "http://192.168.1.11:5000/update";
+
+#define BOTAO 5
+#define POT 34  // pino analógico (IMPORTANTE)
+
+bool ultimoEstadoBotao = HIGH;
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("INICIOU");
+
+  pinMode(BOTAO, INPUT_PULLUP);
+  pinMode(POT, INPUT);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Conectando...");
+  }
+
+  Serial.println("Conectado ao WiFi!");
+}
+
+void loop() {
+  bool estadoAtual = digitalRead(BOTAO);
+
+  // Detecta o momento do clique (HIGH -> LOW)
+  if (ultimoEstadoBotao == HIGH && estadoAtual == LOW) {
+
+    // Lê o potenciômetro
+    int valorPot = analogRead(POT);
+
+    // Converte de 0-4095 para 1-10
+    int nivel = map(valorPot, 0, 4095, 1, 10);
+
+    int grupo = 1;
+
+    Serial.println("BOTÃO APERTADO!");
+    Serial.print("Valor bruto: ");
+    Serial.println(valorPot);
+    Serial.print("Nivel (1-10): ");
+    Serial.println(nivel);
+
+    if (WiFi.status() == WL_CONNECTED) {
+      HTTPClient http;
+
+      String url = String(serverUrl) + "?grupo=" + grupo + "&nivel=" + nivel;
+
+      http.begin(url);
+      int httpResponseCode = http.GET();
+
+      Serial.print("Resposta HTTP: ");
+      Serial.println(httpResponseCode);
+
+      http.end();
+    }
+  }
+
+  ultimoEstadoBotao = estadoAtual;
+
+  delay(50); // pequeno debounce
+}
