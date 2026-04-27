@@ -1,0 +1,94 @@
+import requests
+import time
+import math
+from naoqi import ALProxy
+
+# Estado do robô
+posicao_atual = 0.0  # metros (0 = centro)
+orientacao = 0.0     # radianos (0 = frente)
+
+
+def girar_para(motion, angulo_desejado):
+    # Gira o robô para um ângulo absoluto calculando o delta necessário.
+    global orientacao
+
+    delta = angulo_desejado - orientacao  # rotação relativa necessária
+    motion.moveTo(0, 0, delta)
+    orientacao = angulo_desejado
+
+
+def onInput_onStart(self):
+    # Função principal chamada pelo framework NAOqi/Choregraphe.
+    global posicao_atual, orientacao
+
+    motion = ALProxy("ALMotion", "127.0.0.1", 9559)
+    tts = ALProxy("ALTextToSpeech", "127.0.0.1", 9559)
+
+    motion.wakeUp()
+    motion.moveInit()
+
+    while True:
+        try:
+            # Rota que retorna o próximo grupo com chamado
+            ret = requests.get("http://192.168.1.11:5000/next", timeout=5)
+            data = ret.json()
+
+            grupo = data.get("grupo")
+
+            # Nenhum chamado pendente
+            if grupo is None:
+                time.sleep(1)
+                continue
+
+            # Define posição e ângulo alvo com base no grupo
+            # Ângulos: +π/2 = esquerda, -π/2 = direita (referência: robô olhando para frente na home, no meio do corredor de 4 metros)
+            if grupo == 1:
+                lado = "esquerda"
+                alvo = -2.0
+                angulo_alvo = math.pi / 2   # 90° para a esquerda
+
+            elif grupo == 2:
+                lado = "direita"
+                alvo = 2.0
+                angulo_alvo = -math.pi / 2  # 90° para a direita
+
+            else:
+                print("Grupo desconhecido:", grupo)
+                continue
+
+            print(f"Chamado do grupo {grupo} ({lado}). Indo para posição {alvo}m.")
+            tts.say("Chamado recebido")
+
+            motion.stopMove()
+
+            # Rotaciona para o ângulo absoluto (calcula delta internamente)
+            girar_para(motion, angulo_alvo)
+
+            # Calcula e executa o deslocamento relativo até o alvo
+            deslocamento = alvo - posicao_atual
+            motion.moveTo(deslocamento, 0, 0)
+            posicao_atual = alvo
+
+            tts.say("Cheguei")
+            time.sleep(1)
+
+            # Retorna ao centro após atender o chamado
+            print("Retornando ao centro...")
+            deslocamento_volta = 0.0 - posicao_atual
+            motion.moveTo(deslocamento_volta, 0, 0)
+            posicao_atual = 0.0
+
+            girar_para(motion, 0.0)  # Reorienta para frente
+            print("No centro, pronto para o próximo chamado.")
+
+        except requests.exceptions.Timeout:
+            print("Timeout ao conectar ao servidor. Tentando novamente...")
+            time.sleep(2)
+
+        except requests.exceptions.ConnectionError:
+            print("Erro de conexão com o servidor. Tentando novamente...")
+            time.sleep(2)
+
+        except Exception as e:
+            print("Erro inesperado:", e)
+            time.sleep(2)
