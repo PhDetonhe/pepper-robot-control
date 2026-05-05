@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Mentor Maker{% endblock %}
+
+{% block body_class %}page-dashboard{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div>
+        <p class="section-kicker">Monitoramento</p>
+        <h2 class="hero-title compact">Panorama operacional dos atendimentos</h2>
+        <p class="hero-text compact">
+            Um painel mais vibrante para acompanhar o ritmo da atividade, os grupos em espera e a energia da demonstracao.
+        </p>
+    </div>
+    <div class="panel-card emphasis narrow">
+        <div class="panel-label">Atualizacao automatica</div>
+        <div class="metric-big">1s</div>
+        <p class="support-text">Dados sincronizados continuamente com o Flask.</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="panel-card stat-card">
+        <div class="panel-label">Total de atendimentos</div>
+        <div class="metric-number" id="stat-total">0</div>
+    </article>
+    <article class="panel-card stat-card">
+        <div class="panel-label">Em andamento</div>
+        <div class="metric-number" id="stat-andamento">0</div>
+    </article>
+    <article class="panel-card stat-card">
+        <div class="panel-label">Finalizados</div>
+        <div class="metric-number" id="stat-finalizados">0</div>
+    </article>
+    <article class="panel-card stat-card">
+        <div class="panel-label">Tempo medio</div>
+        <div class="metric-number" id="stat-tempo-medio">0s</div>
+    </article>
+</section>
+
+<section class="content-grid dashboard-grid">
+    <div class="panel-card">
+        <div class="section-heading">
+            <div>
+                <p class="section-kicker">Status</p>
+                <h3>Sistema ao vivo</h3>
+            </div>
+        </div>
+        <div class="live-summary">
+            <div class="summary-row">
+                <span>Modo</span>
+                <strong id="live-modo">--</strong>
+            </div>
+            <div class="summary-row">
+                <span>Escuta</span>
+                <strong id="live-escuta">--</strong>
+            </div>
+            <div class="summary-row">
+                <span>Grupo atual</span>
+                <strong id="live-grupo">--</strong>
+            </div>
+            <div class="summary-row">
+                <span>Urgente</span>
+                <strong id="live-urgente">--</strong>
+            </div>
+            <div class="summary-row">
+                <span>Conteudo</span>
+                <strong id="live-conteudo">--</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-card">
+        <div class="section-heading">
+            <div>
+                <p class="section-kicker">Fila</p>
+                <h3>Prioridades aguardando</h3>
+            </div>
+        </div>
+        <div id="queue-bars" class="queue-bars empty-state">Sem grupos em espera.</div>
+    </div>
+
+    <div class="panel-card wide-card">
+        <div class="section-heading">
+            <div>
+                <p class="section-kicker">Historico</p>
+                <h3>Atendimentos recentes</h3>
+            </div>
+        </div>
+        <div id="historico-lista" class="history-list empty-state">Nenhum atendimento registrado ainda.</div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
