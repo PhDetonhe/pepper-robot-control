@@ -2,10 +2,10 @@
 #include <HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 
-const char* ssid     = "Wi-fi_Educ";
-const char* password = "ac8ce4ss8@educ";
+const char* ssid     = "Wi-fi ADM";
+const char* password = "ac8ce4ss8";
 
-const char* serverUrl = "http://10.121.235.18:5000/update";
+const char* serverUrl = "http://10.121.227.219:5000/update";
 
 #define BOTAO_ENVIO   5
 #define BOTAO_URGENTE 18
@@ -28,7 +28,9 @@ unsigned long sendCooldown = 3000;
 bool lastEnvioState = HIGH;
 bool lastUrgenteState = HIGH;
 
-bool envioState;
+bool envioState = HIGH;
+bool urgenteState = HIGH; 
+
 bool urgente = false;
 
 // ─── LED ────────────────────────────────
@@ -148,24 +150,24 @@ void loop() {
 
   atualizarFita(nivel);
 
-  // ─── BOTÃO URGENTE (TOGGLE) ───
-  int readUrgente = digitalRead(BOTAO_URGENTE);
+  // ─── BOTÃO URGENTE (CORRIGIDO) ───
+int readUrgente = digitalRead(BOTAO_URGENTE);
 
   if (readUrgente != lastUrgenteState) {
     lastDebounceUrgente = millis();
   }
 
   if ((millis() - lastDebounceUrgente) > debounceDelay) {
-    if (readUrgente == LOW && lastUrgenteState == HIGH) {
+    if (readUrgente == LOW && urgenteState == HIGH) {
       urgente = !urgente;
 
       Serial.print("🔴 URGENTE TOGGLE: ");
       Serial.println(urgente ? "ON (1)" : "OFF (0)");
     }
+    urgenteState = readUrgente;
   }
 
   lastUrgenteState = readUrgente;
-
   // ─── BOTÃO ENVIO ───
   int readEnvio = digitalRead(BOTAO_ENVIO);
 

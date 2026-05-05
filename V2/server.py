@@ -260,16 +260,23 @@ def encerrar_manual():
 
     grupo = estado_sistema.get("grupo_atual")
 
-    # ❌ nenhum atendimento ativo
     if grupo is None:
-        return jsonify({
-            "ok": False,
-            "erro": "Nenhum atendimento ativo"
-        }), 400
+        return jsonify({"ok": False, "erro": "Nenhum atendimento ativo"}), 400
+
+    # ✅ Garante que existe um registro no histórico antes de finalizar
+    tem_registro = any(
+        item["grupo"] == grupo and item["fim"] is None
+        for item in historico_atendimentos
+    )
+
+    if not tem_registro:
+        historico_atendimentos.append({
+            "grupo": grupo,
+            "inicio": time.time(),
+            "fim": None
+        })
 
     finalizado = finalizar_atendimento(grupo, proximo_modo="voltando")
-
-    # 🔇 desliga escuta enquanto volta
     estado_escuta = False
 
     return jsonify({
@@ -278,7 +285,6 @@ def encerrar_manual():
         "finalizado": finalizado,
         "modo": estado_sistema["modo"]
     })
-
 
 @app.route("/retorno_concluido", methods=["POST"])
 def retorno_concluido():
